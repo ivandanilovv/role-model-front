@@ -3,30 +3,28 @@
     <div>
       <table class="table py-5 my-5">
         <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">User Name</th>
-            <th scope="col">Roles</th>
-            <th scope="col">Submit</th>
-          </tr>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">User Name</th>
+          <th scope="col">Roles</th>
+        </tr>
         </thead>
         <tbody>
-          <tr v-for="i in users.data.data">
-            <th scope="row">{{ i.id }}</th>
-            <td>{{ i.name }}</td>
-            <td>
-              <input type="checkbox" id="first" name="name1" value="Admin">
-              <label for="first">Admin</label><br/>
-              <input type="checkbox" id="second" name="name1" value="Superadmin">
-              <label for="second">Superadmin</label><br/>
-              <input type="checkbox" id="third" name="name1" value="Moderator">
-              <label for="third">Moderator</label><br/>
-              <input type="checkbox" id="fourth" name="name1" value="Basic">
-              <label for="fourth">Basic</label>
-            </td>
-            <td>
-              <button class="btn btn-primary">Submit</button></td>
-          </tr>
+        <tr v-for="i in users.data.data">
+          <th scope="row">{{ i.id }}</th>
+          <td>{{ i.name }}</td>
+          <td>
+            <div v-for="item in roles.data.data">
+              <input type="checkbox" :id="item.id" :name="item.name"
+                     :value="item.name"
+                     :checked="roleIndexes(i.roles).indexOf(item.id) !== -1"
+                     @click="save(i.id, item.id)">
+              <label :for="item.id">
+                {{ item.name }}
+              </label>
+            </div>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -40,15 +38,28 @@ import axios from "axios";
 
 export default {
   name: 'HomeView',
-  components: {
-  },
+  components: {},
   data() {
     return {
       users: null,
+      roles: null,
     }
   },
-  mounted () {
-    axios.get('http://127.0.0.1:8000/api/users').then(response => (this.users = response))
+  mounted() {
+    axios.get('http://127.0.0.1:8000/api/users').then(response => (this.users = response));
+    axios.get('http://127.0.0.1:8000/api/roles').then(response => (this.roles = response));
+  },
+  methods: {
+    save(a, b) {
+      axios.post('http://127.0.0.1:8000/api/users/'+a+'/'+b).then(function (response) {
+        console.log(response)
+      });
+    },
+  },
+  computed: {
+    roleIndexes() {
+      return (arr) => arr.map(a => a.id)
+    }
   }
 }
 </script>
